@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reto 01: Base64 no es cifrado</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Reto 01: Base64 no es cifrado">
+<meta property="og:image" content="https://a1304rojasc.github.io/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">human<span>_</span></a>
+    <nav><a href="../#proyectos">Proyectos</a><a href="../#writeups">Writeups</a></nav>
+    <button class="theme" type="button" aria-label="Cambiar tema">☾</button>
+  </div>
+</header>
+<main>
+<article class="wrap narrow">
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+<p class="meta">CTF · codificación · reto 01 · ⭐</p>
+<h1>Reto 01: Base64 no es cifrado</h1>
+<p>Un archivo con cuatro líneas de letras y números, sin espacios ni signos raros. ¿Qué dice?</p>
+<h2>Reconocerlo</h2>
+<ul>
+<li>Solo usa 64 caracteres: <code>A-Z a-z 0-9 + /</code>.</li>
+<li>La longitud es múltiplo de 4.</li>
+<li>A menudo termina en <code>=</code> o <code>==</code>, que es el relleno.</li>
+</ul>
+<h2>Decodificarlo</h2>
+<pre><code>base64 -d mensaje.txt</code></pre>
+<pre><code>import base64
+print(base64.b64decode(open("mensaje.txt").read()).decode())</code></pre>
+<p>Aparece el mensaje en claro con la flag: <code>CENTINELA{…}</code>.</p>
+<h2>Lección</h2>
+<p><strong>Codificar no es cifrar.</strong> Base64 solo representa bytes con caracteres seguros para pegarlos en un correo, un JSON o una URL. No hay clave, así que cualquiera lo revierte. Lo mismo pasa con la autenticación básica de HTTP: las credenciales viajan en Base64, por eso solo es aceptable sobre HTTPS.</p>
+
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+</article>
+</main>
+<footer><div class="wrap"><span>Publicado con GitHub Pages</span><a href="https://github.com/a1304rojasc">github.com/a1304rojasc</a></div></footer>
+</body>
+</html>

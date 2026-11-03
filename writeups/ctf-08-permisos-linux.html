@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reto 08: el script SUID que cualquiera puede editar</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Reto 08: el script SUID que cualquiera puede editar">
+<meta property="og:image" content="https://a1304rojasc.github.io/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">human<span>_</span></a>
+    <nav><a href="../#proyectos">Proyectos</a><a href="../#writeups">Writeups</a></nav>
+    <button class="theme" type="button" aria-label="Cambiar tema">☾</button>
+  </div>
+</header>
+<main>
+<article class="wrap narrow">
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+<p class="meta">CTF · Linux · reto 08 · ⭐⭐⭐</p>
+<h1>Reto 08: el script SUID que cualquiera puede editar</h1>
+<p>Un listado <code>ls -l</code> de un servidor. Uno de esos archivos permite a cualquier usuario volverse root. ¿Cuál es, y cuáles son sus permisos en octal?</p>
+<h2>Los bits especiales</h2>
+<table>
+<tr><th>Bit</th><th>Octal</th><th>Se ve como</th><th>Efecto</th></tr>
+<tr><td>SUID</td><td>4000</td><td><code>s</code> en la x del dueño</td><td>Se ejecuta como su dueño</td></tr>
+<tr><td>SGID</td><td>2000</td><td><code>s</code> en la x del grupo</td><td>Se ejecuta con el grupo del archivo</td></tr>
+<tr><td>Sticky</td><td>1000</td><td><code>t</code> en la x de otros</td><td>En un directorio, solo borras lo tuyo</td></tr>
+</table>
+<h2>Paso a paso</h2>
+<p>Primero busco archivos SUID, con una <code>s</code> en la cuarta posición:</p>
+<pre><code>grep -E '^...s' listado.txt
+-rwsr-xr-x 1 root root  990 nov  1 03:00 actualizar.sh
+-rwsrwxrwx 1 root root 2210 nov  1 03:00 respaldo_nocturno.sh</code></pre>
+<p>Que exista un SUID de root es normal (<code>/usr/bin/passwd</code> lo es). El problema es el segundo: en «otros» tiene <code>rwx</code>, así que <strong>cualquiera puede escribir dentro</strong>, y lo que escriba se ejecutará como root. Los distractores tienen solo una de las dos condiciones: <code>notas.txt</code> es escribible por todos pero no es SUID, y <code>tmp_subidas</code> es un directorio con sticky bit, como <code>/tmp</code>.</p>
+<pre><code>especiales  dueño  grupo  otros
+  SUID       rws    rwx    rwx
+  4          7      7      7      → 4777</code></pre>
+<p>En un servidor real se buscan directamente:</p>
+<pre><code>find / -type f -perm -4000 -perm -o+w 2&gt;/dev/null</code></pre>
+<p>La flag combina el nombre del archivo y su octal: <code>CENTINELA{…}</code>.</p>
+<h2>Lección</h2>
+<p>Un SUID de root escribible por otros es una escalada de privilegios regalada. Es de lo primero que se revisa al auditar un Linux, y la razón por la que Centinela escribe su script de bloqueo con permisos 600.</p>
+
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+</article>
+</main>
+<footer><div class="wrap"><span>Publicado con GitHub Pages</span><a href="https://github.com/a1304rojasc">github.com/a1304rojasc</a></div></footer>
+</body>
+</html>

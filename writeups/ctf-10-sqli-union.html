@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reto 10: UNION SELECT abre la bóveda</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Reto 10: UNION SELECT abre la bóveda">
+<meta property="og:image" content="https://a1304rojasc.github.io/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">human<span>_</span></a>
+    <nav><a href="../#proyectos">Proyectos</a><a href="../#writeups">Writeups</a></nav>
+    <button class="theme" type="button" aria-label="Cambiar tema">☾</button>
+  </div>
+</header>
+<main>
+<article class="wrap narrow">
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+<p class="meta">CTF · web · inyección SQL · reto 10 · ⭐⭐⭐⭐</p>
+<h1>Reto 10: UNION SELECT abre la bóveda</h1>
+<p>La misma tienda del <a href="ctf-09-sqli-login.html">reto 09</a> tiene un buscador de productos. El secreto está en otra tabla que la web nunca muestra.</p>
+<h2>La idea</h2>
+<p>El buscador ejecuta algo como esto:</p>
+<pre><code>SELECT nombre, precio, descripcion FROM productos WHERE nombre LIKE '%LO_QUE_ESCRIBO%'</code></pre>
+<p>Si cierro la cadena, puedo añadir un <code>UNION SELECT</code> que lea <strong>otra tabla</strong>, y sus filas aparecerán en la tabla de resultados. La única condición es que las dos consultas tengan el mismo número de columnas.</p>
+<h2>Paso a paso</h2>
+<ol>
+<li><strong>Confirmar la inyección:</strong> busco <code>'</code> y salta un error de base de datos.</li>
+<li><strong>Contar columnas:</strong> <code>' UNION SELECT 1,2 --</code> da error, y <code>' UNION SELECT 1,2,3 --</code> funciona. Son 3.</li>
+<li><strong>Listar tablas</strong> con el catálogo de SQLite:
+<pre><code>' UNION SELECT name, type, sql FROM sqlite_master --</code></pre>
+Aparecen <code>usuarios</code> y <code>boveda(id, secreto)</code>.</li>
+<li><strong>Leer la bóveda.</strong> Tiene 2 columnas y necesito 3, así que relleno la que falta con una constante:
+<pre><code>' UNION SELECT secreto, id, 'x' FROM boveda --</code></pre>
+La flag aparece en la columna «Nombre»: <code>CENTINELA{…}</code>.</li>
+</ol>
+<h2>Lección</h2>
+<p>Una inyección SQL no solo sirve para saltarse un login: deja leer <em>toda</em> la base de datos, incluso tablas que la aplicación nunca usa. El arreglo es el mismo que en el reto 09, consultas parametrizadas, y además que el usuario de la base de datos de la web solo tenga permiso sobre las tablas que necesita (mínimo privilegio).</p>
+
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+</article>
+</main>
+<footer><div class="wrap"><span>Publicado con GitHub Pages</span><a href="https://github.com/a1304rojasc">github.com/a1304rojasc</a></div></footer>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reto 04: romper un hash con un diccionario</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Reto 04: romper un hash con un diccionario">
+<meta property="og:image" content="https://a1304rojasc.github.io/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">human<span>_</span></a>
+    <nav><a href="../#proyectos">Proyectos</a><a href="../#writeups">Writeups</a></nav>
+    <button class="theme" type="button" aria-label="Cambiar tema">☾</button>
+  </div>
+</header>
+<main>
+<article class="wrap narrow">
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+<p class="meta">CTF · cripto · reto 04 · ⭐⭐</p>
+<h1>Reto 04: romper un hash con un diccionario</h1>
+<p>Un volcado de usuarios con hashes de contraseñas, y un diccionario de contraseñas comunes. Hay que encontrar la de <code>admin</code>.</p>
+<h2>1. Identificar el algoritmo</h2>
+<pre><code>admin:670026045122dcc95566ebbe281a1080</code></pre>
+<p>Son 32 caracteres hexadecimales: 32 × 4 = 128 bits, así que es <strong>MD5</strong>. Como referencia, 40 hex corresponden a SHA-1 y 64 hex a SHA-256.</p>
+<h2>2. Ataque de diccionario</h2>
+<p>Un hash no se puede «deshacer», pero es determinista: la misma entrada da siempre la misma salida. Así que se calcula el hash de cada palabra probable y se compara:</p>
+<pre><code>import hashlib
+objetivo = "670026045122dcc95566ebbe281a1080"
+for palabra in open("diccionario.txt").read().split():
+    if hashlib.md5(palabra.encode()).hexdigest() == objetivo:
+        print("Encontrada:", palabra)</code></pre>
+<p>Sale en segundos. <code>john</code> y <code>hashcat</code> hacen lo mismo, pero probando millones por segundo.</p>
+<h2>Lección</h2>
+<p>Con el mismo diccionario caen casi todas las cuentas, excepto una: la de <code>soporte</code>, que es larga y aleatoria y no está en ninguna lista. La defensa tiene dos partes: contraseñas que no estén en diccionarios, y guardarlas con un hash <em>lento y con sal</em> (Argon2, bcrypt), nunca con MD5. Es lo que hace mi <a href="https://github.com/a1304rojasc/gestor-contrasenas">gestor de contraseñas</a>.</p>
+
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+</article>
+</main>
+<footer><div class="wrap"><span>Publicado con GitHub Pages</span><a href="https://github.com/a1304rojasc">github.com/a1304rojasc</a></div></footer>
+</body>
+</html>
