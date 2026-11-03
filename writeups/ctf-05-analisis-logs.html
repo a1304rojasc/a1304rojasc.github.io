@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reto 05: encontrar al atacante que sí entró</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">a1304rojasc<span>_</span></a>
+    <nav><a href="../#proyectos">Proyectos</a><a href="../#writeups">Writeups</a></nav>
+    <button class="theme" type="button" aria-label="Cambiar tema">☾</button>
+  </div>
+</header>
+<main>
+<article class="wrap narrow">
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+<p class="meta">CTF · forense · reto 05 · ⭐⭐</p>
+<h1>Reto 05: encontrar al atacante que sí entró</h1>
+<p>Me dan el <code>auth.log</code> de un servidor y hay que responder: <strong>¿qué IP consiguió entrar por fuerza bruta, y con qué usuario?</strong></p>
+
+<h2>1. Contar fallos por IP</h2>
+<pre><code>grep "Failed password" auth.log | grep -oE "from [0-9.]+" | sort | uniq -c | sort -rn</code></pre>
+<pre><code>    120 from 45.155.205.9
+     85 from 198.51.100.23
+      7 from 192.168.1.22
+      7 from 10.0.0.5
+      5 from 192.168.1.15</code></pre>
+<p>Dos IPs destacan muchísimo. Los 5 a 7 fallos de las IPs internas son usuarios que se equivocan al escribir: es ruido normal.</p>
+
+<h2>2. ¿Alguna de las dos consiguió entrar?</h2>
+<pre><code>grep "Accepted password" auth.log | grep -E "45\.155\.205\.9|198\.51\.100\.23"</code></pre>
+<pre><code>Nov  1 14:50:42 srv-web01 sshd[28819]: Accepted password for soporte from 198.51.100.23 port 55443 ssh2</code></pre>
+<ul>
+<li><code>45.155.205.9</code> falló 120 veces y se rindió. Es el distractor: hace mucho ruido pero no entró.</li>
+<li><code>198.51.100.23</code> falló 85 veces en unos 3 minutos y después <strong>entró como <code>soporte</code></strong>.</li>
+</ul>
+
+<h2>3. Lo mismo en Python</h2>
+<pre><code>import re
+from collections import Counter
+
+fallos, exitos = Counter(), []
+for linea in open("auth.log"):
+    if m := re.search(r"Failed password for (?:invalid user )?\S+ from (\S+)", linea):
+        fallos[m[1]] += 1
+    elif m := re.search(r"Accepted password for (\S+) from (\S+)", linea):
+        exitos.append((m[2], m[1]))
+
+print([(ip, u) for ip, u in exitos if fallos[ip] > 20])</code></pre>
+<p>Flag: <code>CENTINELA{…}</code> (oculta para no arruinar el reto).</p>
+
+<h2>Lección</h2>
+<p>Lo urgente no es la IP con más fallos, sino una racha de fallos <strong>que termina en un éxito</strong>. Esa idea es el núcleo de <a href="https://github.com/a1304rojasc/centinela">Centinela</a>, que lo automatiza con una ventana de tiempo. Ojo: este parser rápido usa <code>\S+</code> para el usuario, y la <a href="centinela-auditoria.html">auditoría</a> explica por qué eso se puede engañar.</p>
+
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+</article>
+</main>
+<footer><div class="wrap"><span>Publicado con GitHub Pages</span><a href="https://github.com/a1304rojasc">github.com/a1304rojasc</a></div></footer>
+</body>
+</html>

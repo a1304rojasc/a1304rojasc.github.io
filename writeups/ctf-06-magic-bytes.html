@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reto 06: la extensión miente, la firma no</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">a1304rojasc<span>_</span></a>
+    <nav><a href="../#proyectos">Proyectos</a><a href="../#writeups">Writeups</a></nav>
+    <button class="theme" type="button" aria-label="Cambiar tema">☾</button>
+  </div>
+</header>
+<main>
+<article class="wrap narrow">
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+<p class="meta">CTF · forense · reto 06 · ⭐⭐</p>
+<h1>Reto 06: la extensión miente, la firma no</h1>
+<p>Me dan <code>informe_final.txt</code>, pero no se lee como texto. La pregunta es qué es en realidad.</p>
+
+<h2>Las firmas de archivo</h2>
+<p>Casi todos los formatos empiezan con unos bytes fijos, los <em>magic bytes</em>:</p>
+<table>
+<tr><th>Formato</th><th>Primeros bytes</th><th>Como texto</th></tr>
+<tr><td>PNG</td><td><code>89 50 4E 47</code></td><td><code>.PNG</code></td></tr>
+<tr><td>PDF</td><td><code>25 50 44 46</code></td><td><code>%PDF</code></td></tr>
+<tr><td>ZIP (.docx, .xlsx, .apk, .jar)</td><td><code>50 4B 03 04</code></td><td><code>PK..</code></td></tr>
+<tr><td>JPEG</td><td><code>FF D8 FF</code></td><td>—</td></tr>
+<tr><td>ELF (ejecutable Linux)</td><td><code>7F 45 4C 46</code></td><td><code>.ELF</code></td></tr>
+</table>
+
+<h2>Paso a paso</h2>
+<pre><code>$ file informe_final.txt
+informe_final.txt: Zip archive data, at least v2.0 to extract
+
+$ head -c 4 informe_final.txt | od -c
+0000000   P   K 003 004</code></pre>
+<p><code>PK</code> son las iniciales de Phil Katz, el creador del formato ZIP. Ya no hace falta adivinar:</p>
+<pre><code>python3 -m zipfile -l informe_final.txt
+python3 -c "import zipfile; print(zipfile.ZipFile('informe_final.txt').read('secreto/nota.txt').decode())"</code></pre>
+<p>Dentro de <code>secreto/nota.txt</code> está la flag: <code>CENTINELA{…}</code>.</p>
+
+<h2>Lección</h2>
+<p>Nunca confíes en la extensión. Es solo parte del nombre y cualquiera la cambia. Un filtro de subida de archivos que solo mira <code>.jpg</code> deja pasar cualquier cosa. Hay que mirar el contenido y, aun así, tratarlo como no confiable.</p>
+
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+</article>
+</main>
+<footer><div class="wrap"><span>Publicado con GitHub Pages</span><a href="https://github.com/a1304rojasc">github.com/a1304rojasc</a></div></footer>
+</body>
+</html>

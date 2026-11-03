@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portafolio de ciberseguridad</title>
+<meta name="description" content="Proyectos de ciberseguridad en Python: detección de ataques, CTF, criptografía aplicada y figuras interactivas.">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/main.js"></script>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#">a1304rojasc<span>_</span></a>
+    <nav>
+      <a href="#proyectos">Proyectos</a>
+      <a href="#figuras" class="hide-sm">Figuras</a>
+      <a href="#writeups">Writeups</a>
+    </nav>
+    <button class="theme" type="button" aria-label="Cambiar tema">☾</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">// estudiante de ciberseguridad</p>
+      <!-- EDITA: cambia este título por tu nombre si quieres -->
+      <h1>Aprendo seguridad construyendo las herramientas que la defienden.</h1>
+      <p class="lead">Escribo en Python detectores de ataques, retos CTF y herramientas de criptografía, y documento en español cada decisión: qué falla, por qué falla y cómo se arregla.</p>
+      <div class="btns">
+        <a class="btn primary" href="#proyectos">Ver proyectos</a>
+        <a class="btn" href="https://github.com/a1304rojasc">GitHub</a>
+      </div>
+      <ul class="skills">
+        <li>Python</li><li>pytest</li><li>análisis de logs</li><li>regex</li><li>SSH</li>
+        <li>criptografía aplicada</li><li>inyección SQL</li><li>pandas</li><li>Linux</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="proyectos">
+    <div class="wrap">
+      <h2>Proyectos</h2>
+      <p class="sub">Todos con tests, código abierto y documentación en español.</p>
+      <div class="grid">
+
+        <div class="card feature">
+          <div>
+            <h3>Centinela</h3>
+            <p>Detector de fuerza bruta en logs de SSH. Lee <code>auth.log</code>, encuentra las IPs que intentan adivinar contraseñas, avisa si alguna llegó a entrar, genera un reporte con gráficos y mantiene una lista negra con su script de firewall. Incluye un honeypot SSH que alimenta al detector y un curso interactivo de 13 módulos.</p>
+            <p class="stat">63 tests · auditoría de seguridad: 9 vulnerabilidades corregidas</p>
+            <ul class="tags"><li>Python</li><li>regex</li><li>pandas</li><li>matplotlib</li><li>paramiko</li></ul>
+            <div class="links">
+              <a href="https://github.com/a1304rojasc/centinela">Código</a>
+              <a href="writeups/centinela-auditoria.html">Writeup de la auditoría</a>
+            </div>
+          </div>
+          <img src="assets/centinela-terminal.png" alt="Salida de Centinela en la terminal: IPs detectadas y su clasificación" loading="lazy">
+        </div>
+
+        <div class="card">
+          <h3>CTF para principiantes</h3>
+          <p>Diez retos progresivos en español: Base64, César, Vigenère, hashes, análisis de logs, magic bytes, esteganografía, permisos de Linux e inyección SQL sobre una app vulnerable a propósito. Cada reto trae pista, solución explicada y un verificador.</p>
+          <ul class="tags"><li>CTF</li><li>cripto clásica</li><li>forense</li><li>SQLi</li><li>Flask</li></ul>
+          <div class="links"><a href="https://github.com/a1304rojasc/ctf-principiantes">Código</a><a href="#writeups">Writeups</a></div>
+        </div>
+
+        <div class="card">
+          <h3>Detector de phishing</h3>
+          <p>Analiza correos <code>.eml</code> y marca remitentes falsos, fallos de SPF/DKIM/DMARC, enlaces cuyo texto no coincide con la URL, dominios parecidos (<code>paypa1</code>) y lenguaje de urgencia. Da un puntaje de riesgo de 0 a 100 con la evidencia de cada señal.</p>
+          <ul class="tags"><li>email</li><li>typosquatting</li><li>solo stdlib</li></ul>
+          <div class="links"><a href="https://github.com/a1304rojasc/detector-phishing">Código</a></div>
+        </div>
+
+        <div class="card">
+          <h3>Gestor de contraseñas educativo</h3>
+          <p>Bóveda de línea de comandos para aprender criptografía aplicada: clave derivada con Argon2id o PBKDF2, cifrado AES-256-GCM con datos asociados, generador con <code>secrets</code> y medidor de fortaleza. Cada decisión está explicada en <code>CRIPTOGRAFIA.md</code>.</p>
+          <ul class="tags"><li>Argon2id</li><li>AES-GCM</li><li>KDF</li><li>modelo de amenazas</li></ul>
+          <div class="links"><a href="https://github.com/a1304rojasc/gestor-contrasenas">Código</a></div>
+        </div>
+
+        <div class="card">
+          <h3>Banco de exámenes Python → Ciberseguridad</h3>
+          <p>Repasos, examen fácil y examen difícil por bloque de mi curso, desde programación pura hasta criptografía, binarios, web, forense y automatización. Las soluciones se corrigen solas con pytest.</p>
+          <ul class="tags"><li>docencia</li><li>pytest</li><li>autoevaluación</li></ul>
+          <div class="links"><a href="https://github.com/a1304rojasc/examenes-python">Código</a></div>
+        </div>
+
+        <div class="card">
+          <h3>Figuras interactivas</h3>
+          <p>Seis visualizaciones que muestran por dentro cómo funcionan conceptos de seguridad: hash, handshake TCP, firewall, cifrado asimétrico, man-in-the-middle y token bucket.</p>
+          <ul class="tags"><li>HTML</li><li>SVG</li><li>divulgación</li></ul>
+          <div class="links"><a href="#figuras">Verlas aquí</a><a href="https://github.com/a1304rojasc/anatomy-figuras">Código</a></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="figuras">
+    <div class="wrap">
+      <h2>Figuras interactivas</h2>
+      <p class="sub">Se abren en una pestaña nueva, en el tema que tengas activo.</p>
+      <div class="fig-grid">
+        <a class="fig" data-figura="hash" data-base="" href="figuras/hash/hash.html" target="_blank" rel="noopener"><span class="ico">SHA-256</span><h3>Función hash</h3><p>Bloques, rondas y efecto avalancha.</p></a>
+        <a class="fig" data-figura="handshake-tcp" data-base="" href="figuras/handshake-tcp/handshake-tcp.html" target="_blank" rel="noopener"><span class="ico">SYN · SYN-ACK · ACK</span><h3>Handshake TCP</h3><p>Números de secuencia, pérdidas y SYN flood.</p></a>
+        <a class="fig" data-figura="firewall" data-base="" href="figuras/firewall/firewall.html" target="_blank" rel="noopener"><span class="ico">iptables</span><h3>Firewall</h3><p>Orden de reglas y política por defecto.</p></a>
+        <a class="fig" data-figura="cifrado-asimetrico" data-base="" href="figuras/cifrado-asimetrico/cifrado-asimetrico.html" target="_blank" rel="noopener"><span class="ico">RSA</span><h3>Cifrado asimétrico</h3><p>Cifrar, descifrar, firmar y verificar.</p></a>
+        <a class="fig" data-figura="mitm" data-base="" href="figuras/mitm/mitm.html" target="_blank" rel="noopener"><span class="ico">MITM</span><h3>Man-in-the-middle</h3><p>Qué ve y qué cambia un intermediario.</p></a>
+        <a class="fig" data-figura="token-bucket" data-base="" href="figuras/token-bucket/token-bucket.html" target="_blank" rel="noopener"><span class="ico">rate limit</span><h3>Token bucket</h3><p>Cómo se limita el ritmo de intentos.</p></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="writeups">
+    <div class="wrap narrow">
+      <h2>Writeups</h2>
+      <p class="sub">Cómo resolví cada problema, paso a paso. Las flags están ocultas para no arruinar los retos.</p>
+      <ul class="list">
+        <li><a href="writeups/centinela-auditoria.html"><span class="cat">auditoría</span><div><h3>El usuario lo escribe el atacante: auditando Centinela</h3><p>Cómo un nombre de usuario podía culpar a una IP inocente, y 8 fallos más.</p></div></a></li>
+        <li><a href="writeups/ctf-05-analisis-logs.html"><span class="cat">CTF · forense</span><div><h3>Reto 05: encontrar al atacante que sí entró</h3><p>Fuerza bruta en un auth.log, con grep y con Python.</p></div></a></li>
+        <li><a href="writeups/ctf-06-magic-bytes.html"><span class="cat">CTF · forense</span><div><h3>Reto 06: la extensión miente, la firma no</h3><p>Magic bytes y un .txt que en realidad es un ZIP.</p></div></a></li>
+        <li><a href="writeups/ctf-09-sqli-login.html"><span class="cat">CTF · web</span><div><h3>Reto 09: entrar como admin sin contraseña</h3><p>Inyección SQL en un login y cómo se arregla.</p></div></a></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Hecho a mano con HTML y CSS · publicado con GitHub Pages</span>
+    <a href="https://github.com/a1304rojasc">github.com/a1304rojasc</a>
+  </div>
+</footer>
+</body>
+</html>

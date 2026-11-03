@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El usuario lo escribe el atacante: auditando Centinela</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">a1304rojasc<span>_</span></a>
+    <nav><a href="../#proyectos">Proyectos</a><a href="../#writeups">Writeups</a></nav>
+    <button class="theme" type="button" aria-label="Cambiar tema">☾</button>
+  </div>
+</header>
+<main>
+<article class="wrap narrow">
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+<p class="meta">auditoría · Python · CWE-117 · CWE-78</p>
+<h1>El usuario lo escribe el atacante: auditando Centinela</h1>
+<p>Centinela lee <code>auth.log</code> y decide a quién bloquear. Al auditarlo con mentalidad de atacante encontré <strong>9 vulnerabilidades</strong> (2 altas, 4 medias, 3 bajas). Casi todas venían de la misma suposición equivocada.</p>
+
+<h2>La idea clave</h2>
+<p>En un log de SSH, el <strong>nombre de usuario es texto libre que elige el atacante</strong> al conectarse. Puede llevar espacios, la palabra <code>from</code>, IPs falsas, fórmulas de Excel o caracteres de control. Un detector que trata ese texto como si fuera de fiar se puede engañar con sus propios datos de entrada.</p>
+
+<h2>V1 · Alta · Culpar a una IP inocente (CWE-117)</h2>
+<p>El patrón original capturaba el usuario con <code>\S+</code> y se quedaba con la <em>primera</em> IP de la línea. Si el atacante se conecta con el usuario <code>x from 8.8.8.8 port 1</code>, sshd escribe:</p>
+<pre><code>Failed password for invalid user x from 8.8.8.8 port 1 from 203.0.113.5 port 5555 ssh2
+                                 └─ lo escribe el atacante ─┘ └─── lo escribe sshd ───┘</code></pre>
+<p>Centinela bloqueaba <code>8.8.8.8</code>. El atacante escondía su IP <strong>y elegía a quién bloquear</strong>: una denegación de servicio contra terceros. Herramientas reales como fail2ban tuvieron fallos de este tipo.</p>
+<p><strong>Arreglo:</strong> anclar la regex al final de la línea. La IP buena es siempre la <em>última</em> <code>from IP port N</code>, la que escribe sshd.</p>
+
+<h2>V2 · Alta · Volverse invisible con un espacio</h2>
+<p>SSH permite usuarios con espacios (<code>a b</code>). Con <code>\S+</code> la regex no encajaba y la línea entera se ignoraba: miles de intentos sin ningún aviso. El mismo arreglo de V1 (capturar el usuario con <code>.+</code> y anclar el final) cierra los dos.</p>
+
+<h2>El resto de hallazgos</h2>
+<table>
+<tr><th>#</th><th>Gravedad</th><th>Qué pasaba</th><th>Arreglo</th></tr>
+<tr><td>V3</td><td>Media</td><td>Inyección de comandos en <code>bloquear.sh</code> con una IPv6 con zona (CWE-78)</td><td>Solo se aceptan IPv4 normalizadas con <code>ipaddress</code>, y al script se escribe la IP reconstruida, nunca el texto recibido</td></tr>
+<tr><td>V4</td><td>Media</td><td>Un usuario con sintaxis matemática tumbaba el reporte y frenaba el bloqueo</td><td>Escapar los <code>$</code> de las etiquetas, y bloquear primero y generar el reporte después</td></tr>
+<tr><td>V5</td><td>Media</td><td>Inyección de fórmulas en los CSV (CWE-1236)</td><td>Anteponer <code>'</code> a celdas que empiezan por <code>= + - @</code>, como recomienda OWASP</td></tr>
+<tr><td>V6</td><td>Media</td><td>Coste cuadrático: un log grande dejaba al detector colgado (CWE-407)</td><td>Búsqueda binaria con <code>bisect</code> sobre listas ordenadas</td></tr>
+<tr><td>V7</td><td>Baja</td><td>Secuencias de escape de terminal en el usuario (CWE-150)</td><td>Mostrar los caracteres invisibles como texto, sin descartar la línea</td></tr>
+<tr><td>V8</td><td>Baja</td><td>Una fecha imposible detenía todo el análisis</td><td>Descartar solo esa línea, y descartar antes de la regex las líneas de más de 4 096 caracteres</td></tr>
+<tr><td>V9</td><td>Baja</td><td>Archivos que ejecuta root escritos con permisos abiertos y de forma no atómica (CWE-732)</td><td>Escribir en un temporal con permisos 600 y colocarlo con <code>os.replace</code>, que es atómico</td></tr>
+</table>
+
+<h2>Cómo lo verifiqué</h2>
+<p>Cada hallazgo se reprodujo con una prueba real y tiene su test de regresión en <code>tests/test_seguridad.py</code>. Con el código anterior, 17 de los 19 tests de seguridad fallaban. Los otros 2 son de control. Con el código corregido pasan todos.</p>
+<div class="note">Lección: en cualquier herramienta defensiva, pregúntate qué partes de la entrada controla el atacante. Esas partes son las que hay que tratar como hostiles.</div>
+<p>Informe completo: <a href="https://github.com/a1304rojasc/centinela/blob/main/SEGURIDAD.md">SEGURIDAD.md</a>.</p>
+
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+</article>
+</main>
+<footer><div class="wrap"><span>Publicado con GitHub Pages</span><a href="https://github.com/a1304rojasc">github.com/a1304rojasc</a></div></footer>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reto 09: entrar como admin sin contraseña</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">a1304rojasc<span>_</span></a>
+    <nav><a href="../#proyectos">Proyectos</a><a href="../#writeups">Writeups</a></nav>
+    <button class="theme" type="button" aria-label="Cambiar tema">☾</button>
+  </div>
+</header>
+<main>
+<article class="wrap narrow">
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+<p class="meta">CTF · web · inyección SQL · reto 09 · ⭐⭐⭐</p>
+<h1>Reto 09: entrar como admin sin contraseña</h1>
+<p>Una tienda de prueba, que corre solo en <code>127.0.0.1</code>, tiene un login. Tengo la cuenta <code>invitado</code>, pero el panel solo lo ve <code>admin</code>. Además, un "modo depuración" muestra la consulta SQL que se ejecuta.</p>
+
+<h2>1. ¿Es inyectable?</h2>
+<p>En el usuario escribo solo una comilla: <code>'</code>. La app responde con un error de base de datos y enseña la consulta rota. Mi comilla desequilibró las del SQL, así que el campo se está <strong>pegando</strong> dentro de la consulta:</p>
+<pre><code>SELECT id, username, rol FROM usuarios
+WHERE username = 'LO_QUE_ESCRIBO' AND password = 'LO_QUE_ESCRIBO'</code></pre>
+
+<h2>2. Comentar la contraseña</h2>
+<p>En el usuario escribo <code>admin' -- </code> (con un espacio al final) y cualquier contraseña:</p>
+<pre><code>SELECT id, username, rol FROM usuarios
+WHERE username = 'admin' -- ' AND password = '...'</code></pre>
+<p>Todo lo que va después de <code>--</code> es un comentario, así que la comprobación de la contraseña desaparece. Entro como admin y aparece la flag: <code>CENTINELA{…}</code>.</p>
+
+<h2>Detalle instructivo</h2>
+<p>El clásico <code>' OR '1'='1' --</code> también entra, pero como <strong>invitado</strong>. La condición es cierta para todas las filas y la base de datos devuelve la primera (id 1). El ataque dirigido es mejor: no solo entras, entras como quien quieres.</p>
+
+<h2>El arreglo</h2>
+<p>La causa es mezclar datos del usuario con código SQL. La solución son las <strong>consultas parametrizadas</strong>: el valor viaja aparte y la base de datos nunca lo interpreta como código.</p>
+<pre><code>db.execute(
+    "SELECT id, username, rol FROM usuarios WHERE username = ? AND password = ?",
+    (usuario, contrasena),
+)</code></pre>
+<div class="note">Además: nunca guardar contraseñas en claro (usar un hash lento como Argon2) y nunca dejar un modo depuración activo en producción.</div>
+
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+</article>
+</main>
+<footer><div class="wrap"><span>Publicado con GitHub Pages</span><a href="https://github.com/a1304rojasc">github.com/a1304rojasc</a></div></footer>
+</body>
+</html>
