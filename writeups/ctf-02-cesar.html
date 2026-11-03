@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reto 02: César se rompe en 25 intentos</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">a1304rojasc<span>_</span></a>
+    <nav><a href="../#proyectos">Proyectos</a><a href="../#writeups">Writeups</a></nav>
+    <button class="theme" type="button" aria-label="Cambiar tema">☾</button>
+  </div>
+</header>
+<main>
+<article class="wrap narrow">
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+<p class="meta">CTF · cripto clásica · reto 02 · ⭐</p>
+<h1>Reto 02: César se rompe en 25 intentos</h1>
+<p>Un mensaje interceptado conserva espacios y puntuación, pero sus letras no tienen sentido. La pista dice que usa el método de Julio César: cada letra se desplaza <code>k</code> posiciones en el alfabeto.</p>
+
+<h2>Opción A: texto conocido</h2>
+<p>La última línea termina en <code>NPYETYPWL{...}</code>. Todas las flags tienen el formato <code>CENTINELA{...}</code>, así que ya sé cómo empieza el texto en claro:</p>
+<pre><code>N (13) − C (2) = 11
+P (15) − E (4) = 11   ✔</code></pre>
+<p>La clave es 11. Para descifrar todo de una vez, resto 11 a cada letra con <code>tr</code>:</p>
+<pre><code>tr 'L-ZA-Kl-za-k' 'A-Za-z' &lt; interceptado.txt</code></pre>
+
+<h2>Opción B: fuerza bruta</h2>
+<p>Sin texto conocido también cae, porque solo hay <strong>25 claves posibles</strong>:</p>
+<pre><code>def cesar(t, d):
+    r = ""
+    for c in t:
+        if c.islower():   r += chr((ord(c) - 97 + d) % 26 + 97)
+        elif c.isupper(): r += chr((ord(c) - 65 + d) % 26 + 65)
+        else:             r += c
+    return r
+
+for d in range(1, 26):
+    print(d, cesar(texto, -d).splitlines()[0])</code></pre>
+<p>Solo la línea del desplazamiento 11 es español legible: «Atacaremos al amanecer por el flanco norte». La flag es <code>CENTINELA{…}</code>.</p>
+
+<h2>Lección</h2>
+<p>Un cifrado con pocas claves se rompe probándolas todas. AES-128 tiene 2<sup>128</sup> claves: aunque probaras mil millones por segundo, tardarías billones de veces la edad del universo.</p>
+
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+</article>
+</main>
+<footer><div class="wrap"><span>Publicado con GitHub Pages</span><a href="https://github.com/a1304rojasc">github.com/a1304rojasc</a></div></footer>
+</body>
+</html>

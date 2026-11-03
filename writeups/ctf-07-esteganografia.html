@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reto 07: el mensaje escondido en el rojo</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">a1304rojasc<span>_</span></a>
+    <nav><a href="../#proyectos">Proyectos</a><a href="../#writeups">Writeups</a></nav>
+    <button class="theme" type="button" aria-label="Cambiar tema">☾</button>
+  </div>
+</header>
+<main>
+<article class="wrap narrow">
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+<p class="meta">CTF · esteganografía · reto 07 · ⭐⭐⭐</p>
+<h1>Reto 07: el mensaje escondido en el rojo</h1>
+<p>Una imagen de un atardecer, con los metadatos limpios y nada útil en <code>strings</code>. El informante insiste: «el mensaje está en los píxeles; en el rojo, en lo más pequeño».</p>
+
+<h2>Esteganografía LSB</h2>
+<p>La esteganografía no esconde el <em>contenido</em> del mensaje, como la criptografía, sino su <em>existencia</em>. En imágenes, la técnica clásica usa el bit menos significativo (LSB):</p>
+<pre><code>Rojo original:  200 = 1100100[0]
+Con un bit 1:   201 = 1100100[1]   ← diferencia invisible al ojo</code></pre>
+<p>Cada píxel presta un bit, y cada 8 píxeles forman un carácter.</p>
+
+<h2>Paso a paso</h2>
+<p>Primero descarto lo fácil:</p>
+<pre><code>file atardecer.png                      # PNG 320x200, nada raro
+strings atardecer.png | grep -i centinela  # nada</code></pre>
+<p>Luego extraigo el último bit del canal rojo, fila por fila:</p>
+<pre><code>from PIL import Image
+
+img = Image.open("atardecer.png").convert("RGB")
+ancho, alto = img.size
+bits = [img.getpixel((x, y))[0] &amp; 1 for y in range(alto) for x in range(ancho)]
+
+mensaje = bytearray()
+for i in range(0, len(bits), 8):
+    byte = 0
+    for bit in bits[i:i + 8]:       # el primer bit es el más significativo
+        byte = (byte &lt;&lt; 1) | bit
+    if byte == 0:                   # byte 0 = fin del mensaje
+        break
+    mensaje.append(byte)
+
+print(mensaje.decode())             # CENTINELA{…}</code></pre>
+<p>Herramientas como <code>zsteg</code> prueban todos los canales y órdenes de bits a la vez. Aquí la combinación ganadora es <code>b1,r,msb,xy</code>.</p>
+
+<h2>Lección</h2>
+<ul>
+<li>LSB sobrevive en PNG, que comprime sin pérdida, pero se destruye si la imagen se guarda como JPEG o si una red social la recomprime.</li>
+<li>Se usa para marcas de agua, y también lo usa el malware para esconder órdenes dentro de imágenes inocentes.</li>
+</ul>
+
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+</article>
+</main>
+<footer><div class="wrap"><span>Publicado con GitHub Pages</span><a href="https://github.com/a1304rojasc">github.com/a1304rojasc</a></div></footer>
+</body>
+</html>

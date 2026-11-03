@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reto 03: Vigenère contra un ataque de texto conocido</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">a1304rojasc<span>_</span></a>
+    <nav><a href="../#proyectos">Proyectos</a><a href="../#writeups">Writeups</a></nav>
+    <button class="theme" type="button" aria-label="Cambiar tema">☾</button>
+  </div>
+</header>
+<main>
+<article class="wrap narrow">
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+<p class="meta">CTF · cripto clásica · reto 03 · ⭐⭐</p>
+<h1>Reto 03: Vigenère contra un ataque de texto conocido</h1>
+<p>El general del reto anterior se pasó a Vigenère, que durante casi 300 años se consideró «indescifrable»: cada letra se desplaza una cantidad distinta según una palabra clave que se repite. Su error fue poner la flag al principio del mensaje.</p>
+
+<h2>La idea</h2>
+<pre><code>cifrada = (clara + clave) mod 26   →   clave = (cifrada − clara) mod 26</code></pre>
+<p>Si conozco un trozo del texto en claro, obtengo ese trozo de la clave directamente.</p>
+
+<h2>Recuperar la clave</h2>
+<p>El mensaje empieza por <code>JEYVWALLL{</code>, y en claro tiene que decir <code>CENTINELA{</code>:</p>
+<table>
+<tr><th>Cifrada</th><td>J</td><td>E</td><td>Y</td><td>V</td><td>W</td><td>A</td><td>L</td><td>L</td><td>L</td></tr>
+<tr><th>Clara</th><td>C</td><td>E</td><td>N</td><td>T</td><td>I</td><td>N</td><td>E</td><td>L</td><td>A</td></tr>
+<tr><th>Clave</th><td><b>H</b></td><td><b>A</b></td><td><b>L</b></td><td><b>C</b></td><td><b>O</b></td><td><b>N</b></td><td>H</td><td>A</td><td>L</td></tr>
+</table>
+<p>Sale <code>HALCONHAL</code>: la palabra <strong>HALCON</strong> que vuelve a empezar. Esa es la clave.</p>
+
+<h2>Descifrar</h2>
+<pre><code>clave = "HALCON"
+r, i = "", 0
+for c in texto:
+    if c.isascii() and c.isalpha():
+        base = 65 if c.isupper() else 97
+        k = ord(clave[i % len(clave)]) - 65
+        r += chr((ord(c) - base - k) % 26 + base)
+        i += 1
+    else:
+        r += c</code></pre>
+<p>Ojo: el índice <code>i</code> solo avanza con las letras. Si avanzara también con los espacios, la clave se desalinearía. La flag es <code>CENTINELA{…}</code>.</p>
+
+<h2>Lección</h2>
+<p>Un cifrado moderno debe resistir ataques de texto conocido: aunque sepas parte del mensaje, no debes poder deducir la clave. Y los mensajes reales están llenos de texto predecible (cabeceras, saludos, formatos), que es justo lo que se usó contra Enigma.</p>
+
+<p class="back"><a href="../#writeups">← Todos los writeups</a></p>
+</article>
+</main>
+<footer><div class="wrap"><span>Publicado con GitHub Pages</span><a href="https://github.com/a1304rojasc">github.com/a1304rojasc</a></div></footer>
+</body>
+</html>
